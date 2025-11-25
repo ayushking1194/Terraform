@@ -8,9 +8,9 @@ terraform {
 }
 
 provider "nutanix" {
-  username = "ayush"
-  password = "nx2Tech123!"
-  endpoint = "10.38.96.7"
+  username = "<USERNAME>"
+  password = "<PASSWORD>"
+  endpoint = "10.X.X.X"
   insecure = true
   port     = 9440
 }
