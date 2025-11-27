@@ -11,6 +11,6 @@ resource "nutanix_virtual_machine" "vm1" {
 
   num_vcpus_per_socket = <int>     # 1,2,3
   num_sockets          = <int>     # 1,2,3
-  memory_size_mib      = <int_mib> # 1024,2048,4096,8124
+  memory_size_mib      = <int_mib> # 1024,2048,4096,8192
 }
 
