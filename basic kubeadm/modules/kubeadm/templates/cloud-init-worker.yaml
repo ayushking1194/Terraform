@@ -1,0 +1,37 @@
+#cloud-config
+package_update: true
+
+write_files:
+  - path: /root/worker-bootstrap.sh
+    permissions: "0755"
+    content: |
+      #!/bin/bash
+      set -e
+
+      apt-get update && apt-get install -y containerd apt-transport-https curl
+
+      mkdir -p /etc/containerd
+      containerd config default > /etc/containerd/config.toml
+      systemctl restart containerd
+
+      curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key |
+        gpg --dearmor -o /usr/share/keyrings/k8s.gpg
+
+      echo "deb [signed-by=/usr/share/keyrings/k8s.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /" \
+        > /etc/apt/sources.list.d/kubernetes.list
+
+      apt-get update
+      apt-get install -y kubelet kubeadm kubectl
+      apt-mark hold kubelet kubeadm kubectl
+
+      CONTROL_IP="${controlplane_private_ip}"
+
+      until ssh -o StrictHostKeyChecking=no ubuntu@$CONTROL_IP "test -f /root/join.sh"; do
+        sleep 8
+      done
+
+      scp -o StrictHostKeyChecking=no ubuntu@$CONTROL_IP:/root/join.sh /root/join.sh
+      bash /root/join.sh
+
+runcmd:
+  - bash /root/worker-bootstrap.sh
